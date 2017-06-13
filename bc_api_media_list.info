@@ -1,0 +1,4 @@
+; $Id$
+name = BC API Media List
+description = "Create custom searches or access user lists using the BiblioCommons API"
+core = 6.x

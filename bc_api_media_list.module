@@ -1,0 +1,123 @@
+<?php
+
+ include_once('./'. drupal_get_path('module', 'bc_api_media_list') .'/config.php.inc'); 
+ 
+ /**
+* Implementation of hook_node_info().
+*/
+function bc_api_media_list_node_info() {
+  return array(
+    'bc_api_media_list' => array(
+      'name' => t('BC API Media List'),
+      'module' => 'bc_api_media_list',
+      'description' => "Create custom searches or access user lists using the BiblioCommons API",
+    )
+  );
+} 
+
+/**
+* Implementation of hook_perm().
+*/
+function bc_api_media_list_perm() {
+  return array('create bc_api_media_list', 'edit own bc_api_media_list');
+} 
+
+/**
+* Implementation of hook_access().
+*/
+function bc_api_media_list_access($op, $node) {
+  global $user;
+
+  if ($op == 'create') {
+    // Only users with permission to do so may create this node type.
+    return user_access('create bc_api_media_list');
+  }
+
+  // Users who create a node may edit or delete it later, assuming they have the
+  // necessary permissions.
+  if ($op == 'update' || $op == 'delete') {
+    if (user_access('edit own bc_api_media_list') && ($user->uid == $node->uid)) {
+      return TRUE;
+    }
+  }
+} 
+
+/**
+* Implementation of hook_form().
+*/
+function bc_api_media_list_form(&$node, $form_state) {
+  $type = node_get_types('type', $node);
+
+  // We need to define form elements for the node's title and body.
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5
+  );
+  // We want the body and filter elements to be adjacent. We could try doing
+  // this by setting their weights, but another module might add elements to the
+  // form with the same weights and end up between ours. By putting them into a
+  // sub-array together, we're able force them to be rendered together.
+  $form['body_filter']['body'] = array(
+    '#type' => 'textarea',
+    '#title' => check_plain($type->body_label),
+    '#default_value' => $node->body,
+    '#required' => FALSE
+  );
+  $form['body_filter']['filter'] = filter_form($node->format);
+
+  // NOTE in node_example there is some addition code here not needed for this simple node-type
+
+  return $form;
+}
+
+/**
+* Implementation of hook_help().
+*/
+function bc_api_media_list_help($path, $arg) {
+  switch ($path) {
+    case 'admin/help#bc_api_media_list':
+      return '' . t('ADMIN-HELP-TEXT') . '';
+      break;
+  }
+} 
+
+/*
+ * 
+ * Override theme templates
+ * 
+ * 
+ */
+// Create a variable to store the path to this module
+define('BC_API_MEDIA_LIST_PATH', drupal_get_path('module', 'bc_api_media_list'));
+
+function bc_api_media_list_theme_registry_alter(&$theme_registry) {
+  // A list of templates the module will provide templates for
+  $hooks = array('node');
+
+  foreach ($hooks as $h) {
+    // Add the module path on top in the array of paths
+    array_unshift($theme_registry[$h]['theme paths'], BC_API_MEDIA_LIST_PATH.'/templates');
+  }
+}
+
+/*
+ * 
+ * Query the Bibliocommons API
+ * 
+ */
+ 
+ function bc_ApiSearchTitles ($bc_apiUrl){
+$ch = curl_init();
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_URL, $bc_apiUrl);
+$result = curl_exec($ch);
+curl_close($ch);
+
+$results = json_decode($result, true);
+return $results;
+} 
+ 
