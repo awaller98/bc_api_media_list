@@ -1,1 +1,7 @@
 config.php.inc
+
+cli_ssh
+
+cli_ssh\.pub
+
+api_key\.txt

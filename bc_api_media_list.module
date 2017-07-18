@@ -56,10 +56,7 @@ function bc_api_media_list_form(&$node, $form_state) {
     '#default_value' => $node->title,
     '#weight' => -5
   );
-  // We want the body and filter elements to be adjacent. We could try doing
-  // this by setting their weights, but another module might add elements to the
-  // form with the same weights and end up between ours. By putting them into a
-  // sub-array together, we're able force them to be rendered together.
+  // We want the body and filter elements to be adjacent. 
   $form['body_filter']['body'] = array(
     '#type' => 'textarea',
     '#title' => check_plain($type->body_label),
@@ -68,7 +65,7 @@ function bc_api_media_list_form(&$node, $form_state) {
   );
   $form['body_filter']['filter'] = filter_form($node->format);
 
-  // NOTE in node_example there is some addition code here not needed for this simple node-type
+ 
 
   return $form;
 }
