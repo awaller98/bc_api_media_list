@@ -3,6 +3,7 @@ What this module does
 - Create a new content type (bc_api_media_list)
 - The new content type accepts and advanced search string from BiblioCore advanced search page (https://mymcpl.bibliocommons.com/search )
 - Other content types can use node reference fields to render (via template customizations) the returned results.
+- Note: The module doesn't create any nodes. It renders output on the fly with php + an API call. 
 
 Setup
 
